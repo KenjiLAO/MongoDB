@@ -104,8 +104,13 @@ var pipeline = [{
 },{
 	$project: {
 		"_id": 0, //On ne veut pas afficher _id
-		"Numero departement": {$substrBytes: ["$adresse.codePostal", 0, 2] },
-		"Capacite totale": "$capacite"
+		"Numero_departement": {$substrBytes: ["$adresse.codePostal", 0, 2] },
+		"Capacite_totale": "$capacite"
+	}
+},{
+	$group: {
+		"_id": "$Numero_departement",
+		"capacite totale": {$sum: "$Capacite_totale"}
 	}
 }]
 
@@ -113,8 +118,7 @@ db.salles.aggregate(pipeline)
 
 ```
 
-![[Pasted image 20230209195247.png]]
-
+![[Pasted image 20230209234709.png]]
 
 Exercice 4
 
