@@ -105,13 +105,16 @@ var pipeline = [{
 	$project: {
 		"_id": 0, //On ne veut pas afficher _id
 		"Numero departement": {$substrBytes: ["$adresse.codePostal", 0, 2] },
-		"Capactie totale": "$capacite"
+		"Capacite totale": "$capacite"
 	}
 }]
 
 db.salles.aggregate(pipeline)
 
 ```
+
+![[Pasted image 20230209195247.png]]
+
 
 Exercice 4
 
@@ -144,12 +147,86 @@ celles de 100 à 500 places
 
 ```bash 
 
+var pipeline = [
+	{ 
+		$bucket: { 
+			groupBy: "$capacite", 
+			boundaries: [100, 500], //Limites
+				default: "Salles qui n'ont pas une capacité de 100 à 500", 
+			output: { 
+				count: { $sum: 1 } 
+			} 
+		} 
+	}
+]
 
+db.salles.aggregate(pipeline)
 
 ```
 
+![[Pasted image 20230209194443.png]]
+
+
 celles de 500 à 5000 places
+
+```bash 
+
+var pipeline = [
+	{ 
+		$bucket: { 
+			groupBy: "$capacite", 
+			boundaries: [500, 5000], //Limites
+				default: "Salles qui n'ont pas une capacité de 500 à 5000", 
+			output: { 
+				count: { $sum: 1 } 
+			} 
+		} 
+	}
+]
+
+db.salles.aggregate(pipeline)
+
+```
+
+![[Pasted image 20230209194622.png]]
+
 
 Exercice 6
 
 Écrivez le pipeline qui affichera le nom des salles ainsi qu’un tableau nommé avis_excellents qui contiendra uniquement les avis dont la note est de 10.
+
+```bash 
+
+var pipeline = [
+  {
+    $group: {
+      _id: "$nom",
+      avis_excellents: { 
+        $push: {
+          $cond: [
+            { $eq: ["$avis.note", 10] },
+            "$avis",
+            null
+          ]
+        }
+      }
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      nom: "$_id",
+      avis_excellents: {
+        $filter: {
+          input: "$avis_excellents",
+          as: "avis",
+          cond: { $ne: ["$$avis", null] }
+        }
+      }
+    }
+  }
+];
+
+db.salles.aggregate(pipeline)
+
+```
