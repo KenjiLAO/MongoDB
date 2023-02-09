@@ -180,20 +180,33 @@ var proprietes = {
 	}]
 }
 
+//Cette commande ne fonctionne pas
+
 db.runCommand({
 	"collMod": "salles",
 	"validator": {
 		$jsonSchema: {
 			"bsonType": "object",
-			$or [{"required": ["nom", "capacite", "adresse.codePostal", "adresse.ville", "styles"],
-			"required": ["nom", "capacite", "adresse.codePostal", "adresse.ville", "smac"]}
+			$or: [{
+					"required": [
+						"_id", "nom", "capacite", "adresse.ville", "adresse.codePostal", "styles"
+					],
+					"required": [
+						"_id", "nom", "capacite", "adresse.ville", "adresse.codePostal", "smac"
+					],
+				}],
 			"properties": proprietes
 		}
 	}
 })
 
-db.salles.insertOne( 
-{"nom": "Super salle", "capacite": 1500, "adresse": {"ville": "Musiqueville"}} 
-)
+```
+
+
+```bash 
+
+db.salles.updateMany({}, {$set: {"verifie": true}}) 
 
 ```
+
+Cette commande
